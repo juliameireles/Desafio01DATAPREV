@@ -1,0 +1,37 @@
+version: '3.8'
+
+services: 
+  db:
+    image: mysql
+    container_name: mysql-container
+    environment: 
+      MYSQL_ROOT_PASSWORD: desafio01
+      MYSQL_DATABASE: listalivros
+    command: --default-authentication-plugin=mysql_native_password
+    volumes: 
+      - ./api/db/data:/var/lib/mysql
+    restart: always
+
+  api: 
+    build: "./api"
+    container_name: node-container
+    restart: always
+    volumes: 
+      - ./api:/home/node/app
+    ports:
+      - "9001:9001"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PASSWORD: desafio01
+      DB_DATABASE: listalivros
+
+  web:
+    image: "php:7.2-apache"
+    container_name: php-container
+    restart: always
+    volumes:
+      - ./website:/var/www/html
+    ports:
+      - "8888:80"

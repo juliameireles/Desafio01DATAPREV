@@ -1,0 +1,24 @@
+{
+  "name": "docker-intro-api",
+  "version": "1.0.0",
+  "description": "Desafio 01 Dataprev",
+  "main": "index.js",
+  "start": "nodemon ./src/index",
+  "scripts": {
+    "test": "test",
+    "start": "node index.js"
+     
+  },
+  "keywords": [
+    "Docker"
+  ],
+  "author": "Julia Meireles",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+     "mysql": "^2.18.1"
+  }
+}
