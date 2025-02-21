@@ -1,34 +1,35 @@
-const express = require ('express');
-const mysql = require('mysql'); //troquei configuração do mysql
-
-
+const express = require('express');
+const mysql = require('mysql2');
 
 const app = express();
 
-const connection = mysql.createConnection({
-    host:'db',
-    user:'root',
-    password: 'desafio01',
-    database: 'listalivros',
-    connectTimeout: 10000 
+const pool = mysql.createPool({
+    connectionLimit: 10,
+    host: "db",
+    user: "root",
+    password: "desafio01",
+    database: "listalivros",
+    connectTimeout: 10000,
+    waitForConnections: true,
 });
 
-connection.connect();
+// Endpoint para testar se a API está no ar
+app.get('/', (req, res) => {
+    res.json({ message: "API funcionando corretamente!" });
+});
 
-app.get('/livros', function(req,res) {
-    connection.query('SELECT * FROM livros',function (error,results){
-        if(error){
+// Endpoint para buscar os livros
+app.get('/livros', (req, res) => {
+    pool.query('SELECT * FROM livros', (error, results) => {
+        if (error) {
+            console.error("Erro ao buscar livros:", error);
             return res.status(500).json({ error: "Erro ao buscar livros." });
-        };
+        }
 
-        res.send(results.map(item => ({titulo: item.titulo, preco:item.preco} )));
-   
+        res.json(results);
     });
-
 });
 
-
-
-app.listen(9001,'0.0.0.0',function(){
-    console.log('Escutando na porta 9001');
-})
+app.listen(9001, '0.0.0.0', () => {
+    console.log('API rodando na porta 9001');
+});

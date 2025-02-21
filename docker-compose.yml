@@ -1,22 +1,23 @@
-version: '3.8'
-
-services: 
+services:
   db:
-    image: mysql
+    image: mysql:8
     container_name: mysql-container
-    environment: 
+    restart: always
+    environment:
       MYSQL_ROOT_PASSWORD: desafio01
       MYSQL_DATABASE: listalivros
-    command: --default-authentication-plugin=mysql_native_password
-    volumes: 
-      - ./api/db/data:/var/lib/mysql
-    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./api/db/script.sql:/docker-entrypoint-initdb.d/script.sql
+    ports:
+      - "3306:3306"
 
-  api: 
-    build: "./api"
+  api:
+    image: node:18-slim
     container_name: node-container
+    working_dir: /home/node/app
     restart: always
-    volumes: 
+    volumes:
       - ./api:/home/node/app
     ports:
       - "9001:9001"
@@ -24,14 +25,25 @@ services:
       - db
     environment:
       DB_HOST: db
+      DB_USER: root
       DB_PASSWORD: desafio01
-      DB_DATABASE: listalivros
+    command: >
+      sh -c "npm install && node index.js"
 
-  web:
-    image: "php:7.2-apache"
+  php:
+    image: php:8.2-apache
     container_name: php-container
     restart: always
     volumes:
       - ./website:/var/www/html
     ports:
       - "8888:80"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: desafio01
+
+volumes:
+  db_data:
